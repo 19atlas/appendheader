@@ -12,13 +12,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Set up GCC
+      uses: egor-tensin/setup-gcc@v1
+      with:
+          version: latest
+          platform: x64
     - uses: actions/checkout@v4
     - name: build the tool
-      run: gcc appendheader.c -o appendheader
+      run: make build
 
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
+          prerelease: false
           title: "Binary Release"
-          files: appendheader
+          files: out/appendheader
