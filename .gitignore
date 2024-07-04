@@ -1,0 +1,4 @@
+out/
+*.out
+boot.img
+boot
