@@ -1,5 +1,6 @@
 name: Building appendheader
 
+
 on:
   push:
     branches: [ "main" ]
@@ -12,9 +13,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: make
-      run: gcc -o appendheader appendheader.c
-    - uses: actions/upload-artifact@v4
+    - name: build the tool
+      run: gcc appendheader.c -o appendheader
+
+    - uses: "marvinpinto/action-automatic-releases@latest"
       with:
-            name: build out
-            path: ./appendheader
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          title: "Binary Release"
+          files: appendheader
