@@ -1,6 +1,8 @@
 # appendheader - add DHTB to boot.img
-For every device that needs the "DHTB" string to boot <br>
-written in c
+![build appendheader](https://github.com/19atlas/appendheader/actions/workflows/c-cpp.yml/badge.svg) <br>
+For every device that need "DHTB" string to boot <br>
+written in c <br>
+
 
 ## minimal usage
 `./appendheader -i [input file]` <br>
