@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 
     // i/o file names
     char* iname = NULL;
-    char* oname = "newboot.img";
+    char* oname = "new_boot.img";
     
     argc--;
     argv++;
@@ -59,7 +59,11 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    //Check for DHTB magic
+    // get file path
+    char* gwd = realpath(iname, NULL);
+    printf("boot file dir: %s\n",gwd);
+    
+    // check for DHTB magic
     const char DHTB_CHAR[] = {0x44, 0x48, 0x54, 0x42};
     char tmp[4096];
     fseek(sourceFile, 0, SEEK_SET);
@@ -70,7 +74,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    //Check for ANDROID! magic
+    // check for ANDROID! magic
     fseek(sourceFile, 0, SEEK_SET);
     if(fread(tmp, BOOT_MAGIC_SIZE, 1, sourceFile)){};
     if (memcmp(tmp, BOOT_MAGIC, BOOT_MAGIC_SIZE) != 0) {
@@ -79,21 +83,21 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    destinationFile = fopen(oname, "wb"); // Open target file in write mode and binary mode
+    destinationFile = fopen(oname, "wb"); // open target file in write mode and binary mode
     if (destinationFile == NULL) {
         printf("output file %s didn't open.\n", oname);
         return 1;
     }
 
-    fseek(sourceFile, 0, SEEK_END); // Positioning at the end of the file
+    fseek(sourceFile, 0, SEEK_END); // positioning at the end of the file
 
-    // Reading the current contents of the boot file
+    // read current contents of boot.img
     long fileSize = ftell(sourceFile);
     char *fileContent = malloc(fileSize);
     fseek(sourceFile, 0, SEEK_SET);
     fread(fileContent, 1, fileSize, sourceFile);
 
-    // Writing "DHTB" at the beginning of the file followed by a 508 byte long null string
+    // writing "DHTB" at the beginning of the file followed by a 508 byte long null string
     fseek(sourceFile, 0, SEEK_SET);
     fwrite(dhtb, sizeof(char), strlen(dhtb), destinationFile);
     fwrite(nullString, sizeof(char), sizeof(nullString), destinationFile);
@@ -104,11 +108,11 @@ int main(int argc, char** argv) {
     fclose(sourceFile);
     fclose(destinationFile);
     
-    //delete input file and rename output file to "boot.img"
+    // delete input file and rename output file to "boot.img" and move to working dir
      if (stay == 3) {
         if (remove(iname) == 0) {
-            printf("Deleted %s successfully\n", iname);
-            if(rename(oname, "boot.img") == 0){
+            printf("deleted %s successfully\n", iname);
+            if(rename(oname, gwd) == 0){ // move and rename
                 printf("created boot.img\n");
             }
         }
