@@ -1,5 +1,6 @@
 out/
 test/
 *.out
-boot.img
-boot
+*boot*.*
+.cache/
+*.old

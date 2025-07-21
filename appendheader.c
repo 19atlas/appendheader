@@ -28,6 +28,10 @@ int main(int argc, char** argv) {
     char *dhtb = "DHTB";
     char nullString[508] = {0}; // create null string 508 bytes long
 
+    // yeni eklenen SEANDROIDENFORCE charı
+    char *seandroid_str = "SEANDROIDENFORCE";
+    int add_seandroid = 0; // -s etiketi kontrolü
+
     // i/o file names
     char* iname = NULL;
     char* oname = "new_boot.img";
@@ -37,6 +41,13 @@ int main(int argc, char** argv) {
     while(argc > 0) { // get file names via commandline
         char *arg = argv[0];
         char *val = argv[1];
+        // -s etiketi için özel kontrol
+        if (!strcmp(arg, "-s") || !strcmp(arg, "--seandroid")) {
+            add_seandroid = 1;
+            argc -= 1;
+            argv += 1;
+            continue;
+        }
         argc -= 2;
         argv += 2;
         if (!strcmp(arg, "--input") || !strcmp(arg, "-i")) {
@@ -49,7 +60,7 @@ int main(int argc, char** argv) {
 
     // get input and output file names
     if (iname == NULL) {
-        printf("appendheader -i [input file] -o [output file](optional)\n");
+        printf("appendheader -i [input file] -o [output file](optional) [-s]\n");
         return 1;
     }
 
@@ -75,13 +86,13 @@ int main(int argc, char** argv) {
     }
 
     // check for ANDROID! magic
-    fseek(sourceFile, 0, SEEK_SET);
-    if(fread(tmp, BOOT_MAGIC_SIZE, 1, sourceFile)){};
-    if (memcmp(tmp, BOOT_MAGIC, BOOT_MAGIC_SIZE) != 0) {
-        printf("(ANDROID!) magic not found!\n");
-        fclose(sourceFile);
-        return 1;
-    }
+    // fseek(sourceFile, 0, SEEK_SET);
+    // fread(tmp, BOOT_MAGIC_SIZE, 1, sourceFile);
+    // if (memcmp(tmp, BOOT_MAGIC, BOOT_MAGIC_SIZE) != 0) {
+    //     printf("(ANDROID!) magic not found!\n");
+    //     fclose(sourceFile);
+    //     return 1;
+    // }
 
     destinationFile = fopen(oname, "wb"); // open target file in write mode and binary mode
     if (destinationFile == NULL) {
@@ -102,6 +113,13 @@ int main(int argc, char** argv) {
     fwrite(dhtb, sizeof(char), strlen(dhtb), destinationFile);
     fwrite(nullString, sizeof(char), sizeof(nullString), destinationFile);
     fwrite(fileContent, 1, fileSize, destinationFile);
+
+    // -s etiketi varsa SEANDROIDENFORCE stringini sona ekle
+    if(add_seandroid) {
+        fwrite(seandroid_str, sizeof(char), strlen(seandroid_str), destinationFile);
+        printf("SEANDROIDENFORCE appended to boot.img\n");
+    }
+
     printf("appended DHTB to boot.img\n");
     
     // close files
